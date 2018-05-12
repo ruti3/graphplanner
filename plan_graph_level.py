@@ -71,9 +71,9 @@ class PlanGraphLevel(object):
                                 flag = False
                                 break
                     if flag:
-                        self.actionLayer.addAction(action)
+                        self.action_layer.add_action(action)
 
-        
+
 
 
 
@@ -88,7 +88,14 @@ class PlanGraphLevel(object):
         Note that an action is *not* mutex with itself
         """
         current_layer_actions = self.action_layer.get_actions()
-        "*** YOUR CODE HERE ***"
+        mutex_actions=self.action_layer.get_mutex_actions()
+        for action1 in current_layer_actions:
+            for action2 in current_layer_actions:
+                if not Pair(action1,action2) in mutex_actions:
+                    if action1.__ne__(action2):
+                        if not mutex_actions(action1,action2,previous_layer_mutex_proposition):
+                            self.action_layer.add_mutex_actions(action1, action2)
+
 
     def update_proposition_layer(self):
         """
@@ -162,7 +169,7 @@ def have_competing_needs(a1, a2, mutex_props):
     Hint: for propositions p  and q, the command  "Pair(p, q) in mutex_props"
           returns true if p and q are mutex in the previous level
     """
-    for  p in a1.get_pre():
+    for p in a1.get_pre():
         for q in a2.get_pre():
             if Pair(p,q) in mutex_props:
                 return True
