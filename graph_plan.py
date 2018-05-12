@@ -227,7 +227,24 @@ def independent_pair(a1, a2):
     a1.is_pos_effect(p) returns true is p is in a1.get_add()
     a1.is_neg_effect(p) returns true is p is in a1.get_delete()
     """
-    "*** YOUR CODE HERE ***"
+
+    # inconsistent
+    for item in a1.get_add():
+        if a2.is_neg_effect(item):
+            return False
+    for item in a2.get_add():
+        if a1.is_neg_effect(item):
+            return False
+
+    # interference
+    for action in a1.get_delete():
+        if a2.is_pre_cond(action):
+            return False
+    for action in a2.get_delete():
+        if a1.is_pre_cond(action):
+            return False
+
+    return True
 
 
 if __name__ == '__main__':
