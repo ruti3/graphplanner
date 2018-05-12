@@ -58,7 +58,24 @@ class PlanGraphLevel(object):
         self.actionLayer.addAction(action) adds action to the current action layer
         """
         all_actions = PlanGraphLevel.actions
-        "*** YOUR CODE HERE ***"
+
+        for action in all_actions:      # TODO might have to change the mutex check
+            if action is not self.action_layer:
+                flag = True
+                if previous_proposition_layer.all_preconds_in_layer(action):
+                    for prop1 in action.get_pre():
+                        if not flag:
+                            break
+                        for prop2 in previous_proposition_layer:
+                            if previous_proposition_layer.is_mutex(prop1, prop2):
+                                flag = False
+                                break
+                    if flag:
+                        self.actionLayer.addAction(action)
+
+        
+
+
 
     def update_mutex_actions(self, previous_layer_mutex_proposition):
         """
