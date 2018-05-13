@@ -125,7 +125,7 @@ class PlanGraphLevel(object):
         mutexProps = self.proposition_layer.get_mutex_props()
         for prop1 in current_layer_propositions:
             for prop2 in current_layer_propositions:
-                if Pair(prop1, prop2) not in mutexProps:
+                if prop1.__ne__(prop2) and (Pair(prop1, prop2) not in mutexProps):
                     if mutex_propositions(prop1, prop2, current_layer_mutex_actions):
                         self.proposition_layer.add_mutex_prop(prop1, prop2)
 
