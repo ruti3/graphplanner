@@ -104,7 +104,6 @@ class PlanGraphLevel(object):
         for action in current_layer_actions: #TODO debug and see all works!!
             for addProp in action.get_add():
                 if addProp not in current_layer_propositions:
-                    addProp.add_producer(action)
                     self.proposition_layer.add_proposition(addProp)
                     current_layer_propositions.add(addProp)
                 elif action not in addProp.get_producers():
@@ -190,6 +189,6 @@ def mutex_propositions(prop1, prop2, mutex_actions_list):
     """
     for a1 in prop1.get_producers():
         for a2 in prop2.get_producers():
-            if a1 == a2:
+            if prop1 in a2.get_delete() or prop2 in a1.get_delete():
                 return True
     return False
