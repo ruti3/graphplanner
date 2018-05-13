@@ -63,18 +63,7 @@ class PlanGraphLevel(object):
             if action is not self.action_layer:
                 flag = True
                 if previous_proposition_layer.all_preconds_in_layer(action):
-                    for prop1 in action.get_pre():
-                        if not flag:
-                            break
-                        for prop2 in previous_proposition_layer.get_propositions():
-                            if previous_proposition_layer.is_mutex(prop1, prop2):
-                                flag = False
-                                break
-                    if flag:
                         self.action_layer.add_action(action)
-
-
-
 
 
     def update_mutex_actions(self, previous_layer_mutex_proposition):
