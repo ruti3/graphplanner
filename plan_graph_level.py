@@ -80,10 +80,9 @@ class PlanGraphLevel(object):
         mutex_action=self.action_layer.get_mutex_actions()
         for action1 in current_layer_actions:
             for action2 in current_layer_actions:
-                if not Pair(action1,action2) in mutex_action:
-                    if action1.__ne__(action2):
-                        if not mutex_actions(action1,action2,previous_layer_mutex_proposition):
-                            self.action_layer.add_mutex_actions(action1, action2)
+                if not Pair(action1,action2) in mutex_action and action1.__ne__(action2):
+                    if mutex_actions(action1,action2,previous_layer_mutex_proposition):
+                        self.action_layer.add_mutex_actions(action1, action2)
 
 
     def update_proposition_layer(self):
@@ -191,6 +190,6 @@ def mutex_propositions(prop1, prop2, mutex_actions_list):
     """
     for a1 in prop1.get_producers():
         for a2 in prop2.get_producers():
-            if Pair(a1,a2) in mutex_actions_list:
+            if a1 == a2:
                 return True
     return False
