@@ -37,13 +37,13 @@ class PlanningProblem:
         self.expanded = 0
 
     def get_start_state(self):
-        "*** YOUR CODE HERE ***"
+        return self.initialState
 
     def is_goal_state(self, state):
         """
         Hint: you might want to take a look at goal_state_not_in_prop_payer function
         """
-        "*** YOUR CODE HERE ***"
+        return not self.goal_state_not_in_prop_layer(state)
 
     def get_successors(self, state):
         """
@@ -59,7 +59,14 @@ class PlanningProblem:
         Note that a state *must* be hashable!! Therefore, you might want to represent a state as a frozenset
         """
         self.expanded += 1
-        "*** YOUR CODE HERE ***"
+        successors=list()
+        StatePropositions=state.get_proposition_layer().get_propositions()
+        for action in self.actions:
+            if action.all_preconds_in_list(StatePropositions):
+                successorPropositions=frozenset(StatePropositions+action.get_add())
+                successors.append((successorPropositions,action,1))
+
+        return successors
 
     @staticmethod
     def get_cost_of_actions( actions):
