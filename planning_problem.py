@@ -60,10 +60,9 @@ class PlanningProblem:
         """
         self.expanded += 1
         successors=list()
-        StatePropositions=state.get_proposition_layer().get_propositions()
         for action in self.actions:
-            if action.all_preconds_in_list(StatePropositions):
-                successorPropositions=frozenset(StatePropositions+action.get_add())
+            if action.all_preconds_in_list(state):
+                successorPropositions=state.union(frozenset(action.get_add()))
                 successors.append((successorPropositions,action,1))
 
         return successors
@@ -163,6 +162,8 @@ if __name__ == '__main__':
     elapsed = time.clock() - start
     if plan is not None:
         print("Plan found with %d actions in %.2f seconds" % (len(plan), elapsed))
+        for action in plan:
+            print(action.name)
     else:
         print("Could not find a plan in %.2f seconds" % elapsed)
     print("Search nodes expanded: %d" % prob.expanded)
