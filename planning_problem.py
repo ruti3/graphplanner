@@ -62,7 +62,7 @@ class PlanningProblem:
         successors=list()
         for action in self.actions:
             if action.all_preconds_in_list(state):
-                successorPropositions=state.union(frozenset(action.get_add()))
+                successorPropositions=state.union(frozenset(action.get_add())).difference(action.get_delete())
                 successors.append((successorPropositions,action,1))
 
         return successors
