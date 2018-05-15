@@ -62,7 +62,7 @@ class PlanningProblem:
         successors=list()
         for action in self.actions:
             if action.all_preconds_in_list(state):
-                successorPropositions=state.union(frozenset(action.get_add())).difference(action.get_delete())
+                successorPropositions=state.union(action.get_add()).difference(action.get_delete())
                 successors.append((successorPropositions,action,1))
 
         return successors
@@ -131,7 +131,35 @@ def level_sum(state, planning_problem):
     The heuristic value is the sum of sub-goals level they first appeared.
     If the goal is not reachable from the state your heuristic should return float('inf')
     """
-    "*** YOUR CODE HERE ***"
+    prop_layer_init = PropositionLayer()
+    for prop in state:
+        prop_layer_init.add_proposition(prop)
+    pg_init = PlanGraphLevel()
+    pg_init.set_proposition_layer(prop_layer_init)
+    pg_previous=pg_init
+
+    pg_what_left_from_goal=planning_problem.goal.copy()
+    sum , level = 0 , 0
+
+    while not planning_problem.is_goal_state(pg_previous.get_proposition_layer().get_propositions()):
+        level += 1
+        for prop in pg_what_left_from_goal:
+            if prop in pg_previous.get_proposition_layer().get_propositions():
+                removed=list()
+                removed.append(prop) #idiot python dont want to remove a single item so we made list of that
+                pg_what_left_from_goal=pg_what_left_from_goal.difference(removed)
+                sum += level
+
+        pg_next = PlanGraphLevel()
+        pg_next.expand_without_mutex(pg_previous)
+
+        if len(pg_next.get_proposition_layer().get_propositions()) == len(
+            pg_previous.get_proposition_layer().get_propositions()) :
+            return float("inf")
+        pg_previous=pg_next
+
+    return sum
+
 
 
 def is_fixed(graph, level):
