@@ -143,15 +143,16 @@ def level_sum(state, planning_problem):
 
     while not planning_problem.is_goal_state(pg_previous.get_proposition_layer().get_propositions()):
         level += 1
+
+        pg_next = PlanGraphLevel()
+        pg_next.expand_without_mutex(pg_previous)
+
         for prop in pg_what_left_from_goal:
-            if prop in pg_previous.get_proposition_layer().get_propositions():
+            if prop in pg_next.get_proposition_layer().get_propositions():
                 removed=list()
                 removed.append(prop) #idiot python dont want to remove a single item so we made list of that
                 pg_what_left_from_goal=pg_what_left_from_goal.difference(removed)
                 sum += level
-
-        pg_next = PlanGraphLevel()
-        pg_next.expand_without_mutex(pg_previous)
 
         if len(pg_next.get_proposition_layer().get_propositions()) == len(
             pg_previous.get_proposition_layer().get_propositions()) :
@@ -159,7 +160,6 @@ def level_sum(state, planning_problem):
         pg_previous=pg_next
 
     return sum
-
 
 
 def is_fixed(graph, level):
