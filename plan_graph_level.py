@@ -61,7 +61,6 @@ class PlanGraphLevel(object):
 
         for action in all_actions:      # TODO might have to change the mutex check
             if action is not self.action_layer:
-                flag = True
                 if previous_proposition_layer.all_preconds_in_layer(action):
                         self.action_layer.add_action(action)
 
@@ -189,6 +188,6 @@ def mutex_propositions(prop1, prop2, mutex_actions_list):
     """
     for a1 in prop1.get_producers():
         for a2 in prop2.get_producers():
-            if prop1 in a2.get_delete() or prop2 in a1.get_delete():
-                return True
-    return False
+            if Pair(a1,a2) not in mutex_actions_list:
+                return False
+    return True
