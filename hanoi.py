@@ -1,9 +1,11 @@
 import sys
 
-# Ai top
-# Ai bottom
-# Tablei Clear
+#parameters
+# Ai top clear
 # AiOnBj
+
+#actions
+#move a to b while a on c
 
 def create_domain_file(domain_file_name, n_, m_):
     disks = ['d_%s' % i for i in list(range(n_))]  # [d_0,..., d_(n_ - 1)]
