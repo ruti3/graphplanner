@@ -79,7 +79,7 @@ class PlanGraphLevel(object):
         mutex_action=self.action_layer.get_mutex_actions()
         for action1 in current_layer_actions:
             for action2 in current_layer_actions:
-                if not Pair(action1,action2) in mutex_action and action1.__ne__(action2):
+                if Pair(action1,action2) not in mutex_action and action1 != action2:
                     if mutex_actions(action1,action2,previous_layer_mutex_proposition):
                         self.action_layer.add_mutex_actions(action1, action2)
 
@@ -122,7 +122,7 @@ class PlanGraphLevel(object):
         mutexProps = self.proposition_layer.get_mutex_props()
         for prop1 in current_layer_propositions:
             for prop2 in current_layer_propositions:
-                if prop1.__ne__(prop2) and (Pair(prop1, prop2) not in mutexProps):
+                if prop1 != prop2 and (Pair(prop1, prop2) not in mutexProps):
                     if mutex_propositions(prop1, prop2, current_layer_mutex_actions):
                         self.proposition_layer.add_mutex_prop(prop1, prop2)
 

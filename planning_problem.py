@@ -61,7 +61,7 @@ class PlanningProblem:
         self.expanded += 1
         successors=list()
         for action in self.actions:
-            if action.all_preconds_in_list(state):
+            if action.all_preconds_in_list(state) and not action.noOp:
                 successorPropositions=state.union(action.get_add()).difference(action.get_delete())
                 successors.append((successorPropositions,action,1))
 
@@ -112,16 +112,15 @@ def max_level(state, planning_problem):
         prop_layer_init.add_proposition(prop)
     pg_init = PlanGraphLevel()
     pg_init.set_proposition_layer(prop_layer_init)
-    pg_previous=pg_init
+    pg_next=pg_init
     level=0
-    while not planning_problem.is_goal_state(pg_previous.get_proposition_layer().get_propositions()):
+    while not planning_problem.is_goal_state(pg_next.get_proposition_layer().get_propositions()):
+
+        prevLayerSize=len(pg_next.get_proposition_layer().get_propositions())
         level += 1
-        pg_next = PlanGraphLevel()
-        pg_next.expand_without_mutex(pg_previous)
-        if len(pg_next.get_proposition_layer().get_propositions()) == len(
-            pg_previous.get_proposition_layer().get_propositions()) :
+        pg_next.expand_without_mutex(pg_next)
+        if len(pg_next.get_proposition_layer().get_propositions()) == prevLayerSize :
             return float("inf")
-        pg_previous=pg_next
 
     return level
 
@@ -131,36 +130,33 @@ def level_sum(state, planning_problem):
     The heuristic value is the sum of sub-goals level they first appeared.
     If the goal is not reachable from the state your heuristic should return float('inf')
     """
-    prop_layer_init = PropositionLayer()
+    propLayerInit = PropositionLayer()
     for prop in state:
-        prop_layer_init.add_proposition(prop)
+        propLayerInit.add_proposition(prop)
+    #set up Proposition layers
+    pgInit = PlanGraphLevel()
+    pgInit.set_proposition_layer(propLayerInit)
 
-    pg_init = PlanGraphLevel()
-    pg_init.set_proposition_layer(prop_layer_init)
-    pg_previous=pg_init
+    level ,sumLevel= 0,0
+    currentGoals = set((planning_problem.goal).copy())
 
-    pg_what_left_from_goal=planning_problem.goal.copy()
-    sum , level = 0 , 0
+    while len(currentGoals)>0:
 
-    while not planning_problem.is_goal_state(pg_previous.get_proposition_layer().get_propositions()):
+        goalWeReachThisLevel = frozenset(pgInit.get_proposition_layer().get_propositions()) & currentGoals
+
+        if len(goalWeReachThisLevel):
+            sumLevel += len(goalWeReachThisLevel) * level
+            currentGoals -= goalWeReachThisLevel
+            if len(currentGoals)==0:
+                return sumLevel
+
         level += 1
-
-        pg_next = PlanGraphLevel()
-        pg_next.expand_without_mutex(pg_previous)
-
-        for prop in pg_what_left_from_goal:
-            if prop in pg_next.get_proposition_layer().get_propositions():
-                removed=[prop]
-                pg_what_left_from_goal=pg_what_left_from_goal.difference(removed)
-                sum += level
-
-        if len(pg_next.get_proposition_layer().get_propositions()) == len(
-            pg_previous.get_proposition_layer().get_propositions()) :
+        prevLayerSize = len(pgInit.get_proposition_layer().get_propositions())
+        pgInit.expand_without_mutex(pgInit) #expand itself
+        if len(pgInit.get_proposition_layer().get_propositions()) == prevLayerSize:
             return float("inf")
 
-        pg_previous=pg_next
-
-    return sum+len(pg_what_left_from_goal)*level
+    return sumLevel
 
 
 def is_fixed(graph, level):
@@ -207,8 +203,6 @@ if __name__ == '__main__':
     elapsed = time.clock() - start
     if plan is not None:
         print("Plan found with %d actions in %.2f seconds" % (len(plan), elapsed))
-        for action in plan:
-            print(action.name)
     else:
         print("Could not find a plan in %.2f seconds" % elapsed)
     print("Search nodes expanded: %d" % prob.expanded)
