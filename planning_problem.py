@@ -143,7 +143,6 @@ def level_sum(state, planning_problem):
     while len(currentGoals)>0:
 
         goalWeReachThisLevel = frozenset(pgInit.get_proposition_layer().get_propositions()) & currentGoals
-
         if len(goalWeReachThisLevel):
             sumLevel += len(goalWeReachThisLevel) * level
             currentGoals -= goalWeReachThisLevel

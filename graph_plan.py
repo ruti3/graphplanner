@@ -85,7 +85,7 @@ class GraphPlan(object):
             self.graph.append(pg_next)
             plan_solution = self.extract(self.graph, self.goal, level)  # try to extract a plan again
             if plan_solution is None and self.is_fixed(level):  # if failed and reached fixed point
-                if size_no_good == len(self.no_goods[level]):
+                if len(self.no_goods[level-1]) == len(self.no_goods[level]):
                     # if size of nogood didn't change, means there's nothing more to do. We failed.
                     return None
                 size_no_good = len(self.no_goods[level])  # we didn't fail yet! update size of no good
@@ -227,7 +227,6 @@ def independent_pair(a1, a2):
     a1.is_pos_effect(p) returns true is p is in a1.get_add()
     a1.is_neg_effect(p) returns true is p is in a1.get_delete()
     """
-
     # inconsistent
     for item in a1.get_add():
         if a2.is_neg_effect(item):

@@ -1,99 +1,71 @@
 import sys
 
 #parameters
-# Ai top clear
-# AiOnBj
-
+# opposite of what we have, everything is oppsitie:
+# if we have all of the disks on first pile that for us meaning they arent on piles 2 and 3.
+# but we implemented it as they are on piles 2 and 3 just not on 1.
 #actions
-#move a to b while a on c
+#move a from pile to pile
 
-def create_domain_file(domain_file_name, n_, m_):
-    disks = ['d_%s' % i for i in list(range(n_))]  # [d_0,..., d_(n_ - 1)]
-    pegs = ['p_%s' % i for i in list(range(m_))]  # [p_0,..., p_(m_ - 1)]
-    domain_file = open(domain_file_name, 'w')  # use domain_file.write(str) to write to domain_file
+def create_domain_file(problem_file_name_, n_, m_):
+    domain_file = open(problem_file_name_, 'w')  # use problem_file.write(str) to write to problem_file
     # Propososition
     domain_file.write("Propositions:\n")
-    for disk in disks:
-        domain_file.write(Clear(disk))
-    # write TableClear Option
-    for pile in pegs:
-        domain_file.write(Clear(pile))
 
-    # writing ON options
-    for i in range(n_):
-        for j in range(i): # j<i
-            domain_file.write(On(disks[j],disks[i]))
-        for pile in pegs:
-            domain_file.write(On(disks[i], pile))
+    for disk in range(n_):
+        for pile in range(m_):
+            domain_file.write(proposition(disk, pile))
 
+    #actions :
     domain_file.write("\nActions:\n")
 
-    #move to clear pile
-    for i in range(n_):
-        for pile in pegs:
-            for j in range(i+1,n_): # j<i
-                moveBToA(disks[i], pile, disks[j], domain_file)
-            for pile2 in pegs:
-                if not pile==pile2:
-                    moveBToA(disks[i], pile, pile2, domain_file)
-
-
-    #move disk to disk while on top of disk
-    for i in range(n_):
-        for j in range(i+1,n_):
-            for k in range(i+1,n_):
-                if j != k:
-                    moveBToA(disks[i], disks[j], disks[k], domain_file)
-            for pile in pegs:
-                moveBToA(disks[i], disks[j], pile, domain_file)
-
-
+    for disk in range(n_):
+        for pile in range(m_):
+            for to_pile in range(m_):
+                if not pile == to_pile:
+                    move(disk, pile, to_pile, domain_file)
     domain_file.close()
-def Clear(disk):
-    return str(disk) + "Top "
-def On(A,B):
-    return str(A)+"-On-"+str(B)+" "
 
-def moveBToA(fromDisk,toDisk,fromDiskOnDisk,domain_file):
-    # Name
-    domain_file.write("Name: MoveFrom-" + str(fromDisk) + "-To-" + str(toDisk)
-                      +"-While-"+On(fromDisk,fromDiskOnDisk) + '\n')
-    # pre
-    domain_file.write("pre: " + Clear(fromDisk) +Clear(toDisk)+ On(fromDisk,fromDiskOnDisk))
-    # add
-    domain_file.write("\nadd: " + Clear(fromDiskOnDisk) + On(fromDisk,toDisk)+'\n')
-    # delete
-    domain_file.write("delete: " + Clear(toDisk) +On(fromDisk,fromDiskOnDisk)+ '\n')
+def proposition(disk, piles):
+    return "n" + str(disk) + "m" + str(piles) + " "
+
+def move(disk, from_pile, to_pile, domain_file):
+
+  # Name
+    domain_file.write("Name: Mn" + str(disk) + "m" + str(from_pile) + str(to_pile) + '\n')
+  # pre
+    domain_file.write("pre: " + proposition(disk, to_pile))
+    for i in range(disk):
+        domain_file.write(proposition(i, from_pile) + proposition(i, to_pile))
+  # add
+    domain_file.write("\nadd: " + proposition(disk, from_pile) + '\n')
+  # delete
+    domain_file.write("delete: " + proposition(disk, to_pile) + '\n')
 
 
 def create_problem_file(problem_file_name_, n_, m_):
-    disks = ['d_%s' % i for i in list(range(n_))]  # [d_0,..., d_(n_ - 1)]
-    pegs = ['p_%s' % i for i in list(range(m_))]  # [p_0,..., p_(m_ - 1)]
     problem_file = open(problem_file_name_, 'w')  # use problem_file.write(str) to write to problem_file
 
-    # Initial state
+  # Initial state
+
     problem_file.write("Initial state: ")
-    for pile in pegs[1:]:
-        problem_file.write(Clear(pile))
-    problem_file.write(Clear(disks[0]))
 
-    for i in range(n-1):
-        problem_file.write(On(disks[i], disks[i+1]))
-    problem_file.write(On(disks[n-1],pegs[0]))
+    for disk in range(n_):
+        for pile in range(1, m_):
+            problem_file.write(proposition(disk, pile))
 
-    # Goal state
+  # Goal state
+
     problem_file.write("\nGoal state: ")
-    for pile in range(m-1):
-        problem_file.write(Clear(pegs[pile]))
 
-    problem_file.write(Clear(disks[0]))
-    for i in range(n - 1):
-        problem_file.write(On(disks[i], disks[i + 1]))
-    problem_file.write(On(disks[n - 1], pegs[m_-1]))
+
+    for disk in range(n_):
+        for pile in range(m_ - 1):
+            problem_file.write(proposition(disk, pile))
 
     problem_file.write("\n")
-    problem_file.close()
 
+    problem_file.close()
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
